@@ -5,8 +5,10 @@ import static se.citerus.dddsample.application.util.DateTestUtil.toDate;
 import se.citerus.dddsample.domain.model.location.Location;
 
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
 
 import java.lang.reflect.Field;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -22,8 +24,10 @@ public class SampleVoyages {
     public static final Voyage CM006 = createVoyage("CM006", HAMBURG, HANGZOU);
 
     private static Voyage createVoyage(String id, Location from, Location to) {
-        return new Voyage(new VoyageNumber(id), new Schedule(Collections.singletonList(
-                new CarrierMovement(from, to, new Date(), new Date())
+        final ZonedDateTime now = ZonedDateTime.now(REFERENCE_ZONE);
+        return new Voyage(
+                new VoyageNumber(id),
+                new Schedule(Collections.singletonList(new CarrierMovement(from, to, now, now)
         )));
     }
 

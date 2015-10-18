@@ -9,11 +9,14 @@ import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.handling.HandlingHistory;
 import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.model.voyage.Voyage;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.domain.shared.DomainObjectUtils;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * The actual transportation of the cargo, as opposed to
@@ -26,14 +29,14 @@ public class Delivery implements ValueObject<Delivery> {
   private Location lastKnownLocation;
   private Voyage currentVoyage;
   private boolean misdirected;
-  private Date eta;
+  private ZonedDateTime eta;
   private HandlingActivity nextExpectedActivity;
   private boolean isUnloadedAtDestination;
   private RoutingStatus routingStatus;
-  private Date calculatedAt;
+  private ZonedDateTime calculatedAt;
   private HandlingEvent lastEvent;
 
-  private static final Date ETA_UNKOWN = null;
+  private static final ZonedDateTime ETA_UNKOWN = null;
   private static final HandlingActivity NO_ACTIVITY = null;
 
   /**
@@ -77,7 +80,7 @@ public class Delivery implements ValueObject<Delivery> {
    * @param routeSpecification route specification
    */
   private Delivery(HandlingEvent lastEvent, Itinerary itinerary, RouteSpecification routeSpecification) {
-    this.calculatedAt = new Date();
+    this.calculatedAt = ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE);
     this.lastEvent = lastEvent;
 
     this.misdirected = calculateMisdirectionStatus(itinerary);
@@ -129,12 +132,9 @@ public class Delivery implements ValueObject<Delivery> {
   /**
    * @return Estimated time of arrival
    */
-  public Date estimatedTimeOfArrival() {
-    if (eta != ETA_UNKOWN) {
-      return new Date(eta.getTime());
-    } else {
-      return ETA_UNKOWN;
-    }
+  public ZonedDateTime estimatedTimeOfArrival() {
+    //we can safely share the eta, since it's immutable
+    return eta;
   }
 
   /**
@@ -161,8 +161,9 @@ public class Delivery implements ValueObject<Delivery> {
   /**
    * @return When this delivery was calculated.
    */
-  public Date calculatedAt() {
-    return new Date(calculatedAt.getTime());
+  public ZonedDateTime calculatedAt() {
+    //we can safely share the datetime, since it's immutable
+    return calculatedAt;
   }
 
   // TODO add currentCarrierMovement (?)
@@ -214,9 +215,9 @@ public class Delivery implements ValueObject<Delivery> {
     }
   }
 
-  private Date calculateEta(Itinerary itinerary) {
-    if (onTrack()) {
-      return itinerary.finalArrivalDate();
+  private ZonedDateTime calculateEta(Itinerary itinerary) {
+    if (onTrack() && itinerary.finalArrivalDate().isPresent()) {
+      return itinerary.finalArrivalDate().get();
     } else {
       return ETA_UNKOWN;
     }

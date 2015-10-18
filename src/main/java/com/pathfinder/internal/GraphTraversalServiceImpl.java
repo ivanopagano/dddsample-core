@@ -3,8 +3,12 @@ package com.pathfinder.internal;
 import com.pathfinder.api.GraphTraversalService;
 import com.pathfinder.api.TransitEdge;
 import com.pathfinder.api.TransitPath;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
+import java.time.ZonedDateTime;
 import java.util.*;
+
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
 
 public class GraphTraversalServiceImpl implements GraphTraversalService {
 
@@ -21,7 +25,8 @@ public class GraphTraversalServiceImpl implements GraphTraversalService {
   public List<TransitPath> findShortestPath(final String originUnLocode,
                                             final String destinationUnLocode,
                                             final Properties limitations) {
-    Date date = nextDate(new Date());
+
+    ZonedDateTime date = nextDate(ZonedDateTime.now(REFERENCE_ZONE));
 
     List<String> allVertices = dao.listLocations();
     allVertices.remove(originUnLocode);
@@ -35,8 +40,8 @@ public class GraphTraversalServiceImpl implements GraphTraversalService {
       final List<TransitEdge> transitEdges = new ArrayList<TransitEdge>(allVertices.size() - 1);
       final String firstLegTo = allVertices.get(0);
 
-      Date fromDate = nextDate(date);
-      Date toDate = nextDate(fromDate);
+      ZonedDateTime fromDate = nextDate(date);
+      ZonedDateTime toDate = nextDate(fromDate);
       date = nextDate(toDate);
 
       transitEdges.add(new TransitEdge(
@@ -67,6 +72,10 @@ public class GraphTraversalServiceImpl implements GraphTraversalService {
 
   private Date nextDate(Date date) {
     return new Date(date.getTime() + ONE_DAY_MS + (random.nextInt(1000) - 500) * ONE_MIN_MS);
+  }
+
+  private ZonedDateTime nextDate(ZonedDateTime date) {
+    return date.plusDays(1).plusMinutes(random.nextInt(1000) - 500L);
   }
 
   private int getRandomNumberOfCandidates() {

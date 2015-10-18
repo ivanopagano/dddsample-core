@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -23,9 +23,11 @@ import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.Voyage;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 import se.citerus.dddsample.domain.model.voyage.VoyageRepository;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -92,9 +94,9 @@ public class CargoRepositoryTest {
 
         Voyage hongkongMelbourneTokyoAndBack = new Voyage.Builder(
                 new VoyageNumber("0303"), HONGKONG).
-                addMovement(MELBOURNE, new Date(), new Date()).
-                addMovement(TOKYO, new Date(), new Date()).
-                addMovement(HONGKONG, new Date(), new Date()).
+                addMovement(MELBOURNE, now(), now()).
+                addMovement(TOKYO, now(), now()).
+                addMovement(HONGKONG, now(), now()).
                 build();
 
         assertHandlingEvent(cargo, secondEvent, LOAD, HONGKONG, 150, 110, hongkongMelbourneTokyoAndBack);
@@ -112,14 +114,18 @@ public class CargoRepositoryTest {
         assertLeg(thirdLeg, "0101", STOCKHOLM, HELSINKI);
     }
 
+    private ZonedDateTime now() {
+        return ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE);
+    }
+
     private void assertHandlingEvent(Cargo cargo, HandlingEvent event, HandlingEvent.Type expectedEventType, Location expectedLocation, int completionTimeMs, int registrationTimeMs, Voyage voyage) {
         assertEquals(expectedEventType, event.type());
         assertEquals(expectedLocation, event.location());
 
-        Date expectedCompletionTime = SampleDataGenerator.offset(completionTimeMs);
+        ZonedDateTime expectedCompletionTime = SampleDataGenerator.offset(completionTimeMs);
         assertEquals(expectedCompletionTime, event.completionTime());
 
-        Date expectedRegistrationTime = SampleDataGenerator.offset(registrationTimeMs);
+        ZonedDateTime expectedRegistrationTime = SampleDataGenerator.offset(registrationTimeMs);
         assertEquals(expectedRegistrationTime, event.registrationTime());
 
         assertEquals(voyage, event.voyage());
@@ -143,7 +149,7 @@ public class CargoRepositoryTest {
         Location origin = locationRepository.find(STOCKHOLM.unLocode());
         Location destination = locationRepository.find(MELBOURNE.unLocode());
 
-        Cargo cargo = new Cargo(trackingId, new RouteSpecification(origin, destination, new Date()));
+        Cargo cargo = new Cargo(trackingId, new RouteSpecification(origin, destination, now()));
         cargoRepository.store(cargo);
 
         cargo.assignToRoute(new Itinerary(Collections.singletonList(
@@ -151,7 +157,7 @@ public class CargoRepositoryTest {
                         voyageRepository.find(new VoyageNumber("0101")),
                         locationRepository.find(STOCKHOLM.unLocode()),
                         locationRepository.find(MELBOURNE.unLocode()),
-                        new Date(), new Date())
+                        now(), now())
         )));
 
         flush();
@@ -181,7 +187,7 @@ public class CargoRepositoryTest {
 
         Location legFrom = locationRepository.find(new UnLocode("FIHEL"));
         Location legTo = locationRepository.find(new UnLocode("DEHAM"));
-        Itinerary newItinerary = new Itinerary(Collections.singletonList(new Leg(CM004, legFrom, legTo, new Date(), new Date())));
+        Itinerary newItinerary = new Itinerary(Collections.singletonList(new Leg(CM004, legFrom, legTo, now(), now())));
 
         cargo.assignToRoute(newItinerary);
 

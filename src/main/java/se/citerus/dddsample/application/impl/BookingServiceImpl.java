@@ -10,8 +10,8 @@ import se.citerus.dddsample.domain.model.location.LocationRepository;
 import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.service.RoutingService;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public final class BookingServiceImpl implements BookingService {
@@ -33,7 +33,7 @@ public final class BookingServiceImpl implements BookingService {
   @Transactional
   public TrackingId bookNewCargo(final UnLocode originUnLocode,
                                  final UnLocode destinationUnLocode,
-                                 final Date arrivalDeadline) {
+                                 final ZonedDateTime arrivalDeadline) {
     // TODO modeling this as a cargo factory might be suitable
     final TrackingId trackingId = cargoRepository.nextTrackingId();
     final Location origin = locationRepository.find(originUnLocode);

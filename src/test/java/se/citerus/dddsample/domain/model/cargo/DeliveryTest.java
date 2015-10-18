@@ -1,6 +1,8 @@
 package se.citerus.dddsample.domain.model.cargo;
 
 import junit.framework.TestCase;
+import se.citerus.dddsample.application.util.DateTestUtil;
+
 import static se.citerus.dddsample.domain.model.location.SampleLocations.HONGKONG;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.NEWYORK;
 
@@ -8,7 +10,7 @@ import java.util.Date;
 
 public class DeliveryTest extends TestCase {
 
-  private Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(HONGKONG, NEWYORK, new Date()));
+  private Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(HONGKONG, NEWYORK, DateTestUtil.now()));
 
   public void testToSilenceWarnings() throws Exception {
     assertTrue(true);

@@ -9,11 +9,15 @@ import se.citerus.dddsample.domain.model.cargo.*;
 import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.model.location.LocationRepository;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
+
 import se.citerus.dddsample.domain.model.voyage.SampleVoyages;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 import se.citerus.dddsample.domain.model.voyage.VoyageRepository;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.infrastructure.persistence.inmemory.LocationRepositoryInMem;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +50,7 @@ public class ExternalRoutingServiceTest extends TestCase {
 
   public void testCalculatePossibleRoutes() {
     TrackingId trackingId = new TrackingId("ABC");
-    RouteSpecification routeSpecification = new RouteSpecification(HONGKONG, HELSINKI, new Date());
+    RouteSpecification routeSpecification = new RouteSpecification(HONGKONG, HELSINKI, ZonedDateTime.now(REFERENCE_ZONE));
     Cargo cargo = new Cargo(trackingId, routeSpecification);
 
     expect(voyageRepository.find(isA(VoyageNumber.class))).andStubReturn(SampleVoyages.CM002);

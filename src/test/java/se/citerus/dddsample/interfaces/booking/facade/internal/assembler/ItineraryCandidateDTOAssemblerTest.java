@@ -2,6 +2,8 @@ package se.citerus.dddsample.interfaces.booking.facade.internal.assembler;
 
 import junit.framework.TestCase;
 import static org.easymock.EasyMock.*;
+
+import se.citerus.dddsample.application.util.DateTestUtil;
 import se.citerus.dddsample.domain.model.cargo.Itinerary;
 import se.citerus.dddsample.domain.model.cargo.Leg;
 import se.citerus.dddsample.domain.model.location.Location;
@@ -29,8 +31,8 @@ public class ItineraryCandidateDTOAssemblerTest extends TestCase {
 
     final Itinerary itinerary = new Itinerary(
       Arrays.asList(
-        new Leg(CM001, origin, SHANGHAI, new Date(), new Date()),
-        new Leg(CM001, ROTTERDAM, destination, new Date(), new Date())
+        new Leg(CM001, origin, SHANGHAI, DateTestUtil.now(), DateTestUtil.now()),
+        new Leg(CM001, ROTTERDAM, destination, DateTestUtil.now(), DateTestUtil.now())
       )
     );
 
@@ -52,8 +54,8 @@ public class ItineraryCandidateDTOAssemblerTest extends TestCase {
     final ItineraryCandidateDTOAssembler assembler = new ItineraryCandidateDTOAssembler();
 
     final List<LegDTO> legs = new ArrayList<LegDTO>();
-    legs.add(new LegDTO("CM001", "AAAAA", "BBBBB", new Date(), new Date()));
-    legs.add(new LegDTO("CM001", "BBBBB", "CCCCC", new Date(), new Date()));
+    legs.add(new LegDTO("CM001", "AAAAA", "BBBBB", DateTestUtil.now(), DateTestUtil.now()));
+    legs.add(new LegDTO("CM001", "BBBBB", "CCCCC", DateTestUtil.now(), DateTestUtil.now()));
 
     final LocationRepository locationRepository = createMock(LocationRepository.class);
     expect(locationRepository.find(new UnLocode("AAAAA"))).andReturn(HONGKONG);

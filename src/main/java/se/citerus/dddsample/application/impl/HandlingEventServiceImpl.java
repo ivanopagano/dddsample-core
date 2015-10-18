@@ -12,8 +12,11 @@ import se.citerus.dddsample.domain.model.handling.HandlingEventFactory;
 import se.citerus.dddsample.domain.model.handling.HandlingEventRepository;
 import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
+
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
 
 public final class HandlingEventServiceImpl implements HandlingEventService {
 
@@ -32,12 +35,12 @@ public final class HandlingEventServiceImpl implements HandlingEventService {
 
   @Override
   @Transactional(rollbackFor = CannotCreateHandlingEventException.class)
-  public void registerHandlingEvent(final Date completionTime,
+  public void registerHandlingEvent(final ZonedDateTime completionTime,
                                     final TrackingId trackingId,
                                     final VoyageNumber voyageNumber,
                                     final UnLocode unLocode,
                                     final HandlingEvent.Type type) throws CannotCreateHandlingEventException {
-    final Date registrationTime = new Date();
+    final ZonedDateTime registrationTime = ZonedDateTime.now(REFERENCE_ZONE);
     /* Using a factory to create a HandlingEvent (aggregate). This is where
        it is determined wether the incoming data, the attempt, actually is capable
        of representing a real handling event. */

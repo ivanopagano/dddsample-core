@@ -10,6 +10,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import static java.time.Month.JANUARY;
 import static se.citerus.dddsample.application.util.DateTestUtil.toDate;
 import se.citerus.dddsample.domain.model.cargo.*;
 import se.citerus.dddsample.domain.model.handling.*;
@@ -19,6 +21,7 @@ import se.citerus.dddsample.domain.model.location.SampleLocations;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
 import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.*;
 import se.citerus.dddsample.domain.model.voyage.VoyageRepository;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -27,6 +30,13 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import static java.util.Arrays.asList;
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
+
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalField;
 import java.util.Date;
 
 /**
@@ -34,15 +44,7 @@ import java.util.Date;
  */
 public class SampleDataGenerator implements ServletContextListener {
 
-  private static final Timestamp base; 
-  static {
-    try {
-      Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2008-01-01");
-      base = new Timestamp(date.getTime() - 1000L * 60 * 60 * 24 * 100);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private static final ZonedDateTime base = ZonedDateTime.of(LocalDateTime.of(2008, JANUARY, 1 ,0, 0), REFERENCE_ZONE).minusDays(100);
 
   private static void loadHandlingEventData(JdbcTemplate jdbcTemplate) {
     String handlingEventSql =
@@ -233,17 +235,17 @@ public class SampleDataGenerator implements ServletContextListener {
         
         try {
           HandlingEvent event1 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-01"), trackingId, null, HONGKONG.unLocode(), HandlingEvent.Type.RECEIVE
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-01"), trackingId, null, HONGKONG.unLocode(), HandlingEvent.Type.RECEIVE
           );
           session.save(event1);
 
           HandlingEvent event2 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-02"), trackingId, HONGKONG_TO_NEW_YORK.voyageNumber(), HONGKONG.unLocode(), HandlingEvent.Type.LOAD
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-02"), trackingId, HONGKONG_TO_NEW_YORK.voyageNumber(), HONGKONG.unLocode(), HandlingEvent.Type.LOAD
           );
           session.save(event2);
 
           HandlingEvent event3 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-05"), trackingId, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.UNLOAD
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-05"), trackingId, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.UNLOAD
           );
           session.save(event3);
         } catch (CannotCreateHandlingEventException e) {
@@ -272,22 +274,22 @@ public class SampleDataGenerator implements ServletContextListener {
 
         try {
           HandlingEvent event1 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-01"), trackingId1, null, HANGZOU.unLocode(), HandlingEvent.Type.RECEIVE
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-01"), trackingId1, null, HANGZOU.unLocode(), HandlingEvent.Type.RECEIVE
           );
           session.save(event1);
 
           HandlingEvent event2 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-03"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), HANGZOU.unLocode(), HandlingEvent.Type.LOAD
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-03"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), HANGZOU.unLocode(), HandlingEvent.Type.LOAD
           );
           session.save(event2);
 
           HandlingEvent event3 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-05"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.UNLOAD
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-05"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.UNLOAD
           );
           session.save(event3);
 
           HandlingEvent event4 = handlingEventFactory.createHandlingEvent(
-            new Date(), toDate("2009-03-06"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.LOAD
+            ZonedDateTime.now(REFERENCE_ZONE), toDate("2009-03-06"), trackingId1, HONGKONG_TO_NEW_YORK.voyageNumber(), NEWYORK.unLocode(), HandlingEvent.Type.LOAD
           );
           session.save(event4);
 
@@ -323,11 +325,14 @@ public class SampleDataGenerator implements ServletContextListener {
     }
   }
 
+
+
   private static Timestamp ts(int hours) {
-    return new Timestamp(base.getTime() + 1000L * 60 * 60 * hours);
+    return new Timestamp(base.plusHours(hours).toInstant().toEpochMilli());
   }
 
-  public static Date offset(int hours) {
-    return new Date(ts(hours).getTime());
+  public static ZonedDateTime offset(int hours) {
+    return base.plusHours(hours);
   }
+
 }

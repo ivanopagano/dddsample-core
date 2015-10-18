@@ -2,27 +2,34 @@ package se.citerus.dddsample.interfaces.tracking;
 
 import junit.framework.TestCase;
 import org.springframework.context.support.StaticApplicationContext;
+import se.citerus.dddsample.application.util.DateTestUtil;
 import se.citerus.dddsample.domain.model.cargo.Cargo;
 import se.citerus.dddsample.domain.model.cargo.RouteSpecification;
 import se.citerus.dddsample.domain.model.cargo.TrackingId;
 import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.handling.HandlingHistory;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
+
+import static se.citerus.dddsample.application.util.DateTestUtil.*;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.HANGZOU;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.HELSINKI;
 import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.CM001;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 public class CargoTrackingViewAdapterTest extends TestCase {
 
   public void testCreate() {
-    Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(HANGZOU, HELSINKI, new Date()));
+    Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(HANGZOU, HELSINKI, ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE)));
 
     List<HandlingEvent> events = new ArrayList<HandlingEvent>();
-    events.add(new HandlingEvent(cargo, new Date(1), new Date(2), HandlingEvent.Type.RECEIVE, HANGZOU));
+    events.add(new HandlingEvent(cargo, makeDate(1), makeDate(2), HandlingEvent.Type.RECEIVE, HANGZOU));
 
-    events.add(new HandlingEvent(cargo, new Date(3), new Date(4), HandlingEvent.Type.LOAD, HANGZOU, CM001));
-    events.add(new HandlingEvent(cargo, new Date(5), new Date(6), HandlingEvent.Type.UNLOAD, HELSINKI, CM001));
+    events.add(new HandlingEvent(cargo, makeDate(3), makeDate(4), HandlingEvent.Type.LOAD, HANGZOU, CM001));
+    events.add(new HandlingEvent(cargo, makeDate(5), makeDate(6), HandlingEvent.Type.UNLOAD, HELSINKI, CM001));
 
     cargo.deriveDeliveryProgress(new HandlingHistory(events));
 
@@ -30,7 +37,7 @@ public class CargoTrackingViewAdapterTest extends TestCase {
     applicationContext.addMessage("cargo.status.IN_PORT", Locale.GERMAN, "In port {0}");
     applicationContext.refresh();
 
-    CargoTrackingViewAdapter adapter = new CargoTrackingViewAdapter(cargo, applicationContext, Locale.GERMAN, events, TimeZone.getTimeZone("Europe/Stockholm"));
+    CargoTrackingViewAdapter adapter = new CargoTrackingViewAdapter(cargo, applicationContext, Locale.GERMAN, events, ZoneId.of("Europe/Stockholm"));
 
     assertEquals("XYZ", adapter.getTrackingId());
     assertEquals("Hangzhou", adapter.getOrigin());

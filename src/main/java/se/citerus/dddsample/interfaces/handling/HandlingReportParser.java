@@ -10,6 +10,9 @@ import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.List;
  */
 public class HandlingReportParser {
 
-  public static final String ISO_8601_FORMAT = "yyyy-MM-dd HH:mm";
+  private static final DateTimeFormatter ISO_8601_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
   public static UnLocode parseUnLocode(final String unlocode, final List<String> errors) {
     try {
@@ -55,12 +58,12 @@ public class HandlingReportParser {
     }
   }
 
-  public static Date parseDate(final String completionTime, final List<String> errors) {
-    Date date;
+  public static ZonedDateTime parseDate(final String completionTime, final List<String> errors) {
+    ZonedDateTime date;
     try {
-      date = new SimpleDateFormat(ISO_8601_FORMAT).parse(completionTime);
-    } catch (ParseException e) {
-      errors.add("Invalid date format: " + completionTime + ", must be on ISO 8601 format: " + ISO_8601_FORMAT);
+      date = ZonedDateTime.parse(completionTime, ISO_8601_FORMATTER);
+    } catch (DateTimeParseException e) {
+      errors.add("Invalid date format: " + completionTime + ", must be on ISO 8601 format: " + ISO_8601_FORMATTER);
       date = null;
     }
     return date;
@@ -75,13 +78,13 @@ public class HandlingReportParser {
     }
   }
 
-  public static Date parseCompletionTime(HandlingReport handlingReport, List<String> errors) {
+  public static ZonedDateTime parseCompletionTime(HandlingReport handlingReport, List<String> errors) {
     final XMLGregorianCalendar completionTime = handlingReport.getCompletionTime();
     if (completionTime == null) {
       errors.add("Completion time is required");
       return null;
     }
 
-    return completionTime.toGregorianCalendar().getTime();
+    return ZonedDateTime.from(completionTime.toGregorianCalendar().toInstant());
   }
 }

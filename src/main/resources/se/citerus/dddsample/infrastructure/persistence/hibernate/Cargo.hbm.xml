@@ -27,6 +27,7 @@
         <type name="org.hibernate.type.EnumType">
           <param name="enumClass">se.citerus.dddsample.domain.model.cargo.RoutingStatus</param>
           <param name="type">12</param><!-- 12 is java.sql.Types.VARCHAR -->
+          <param name="useNamed">true</param>
         </type>
       </property>
 
@@ -36,6 +37,7 @@
           <type name="org.hibernate.type.EnumType">
             <param name="enumClass">se.citerus.dddsample.domain.model.handling.HandlingEvent$Type</param>
             <param name="type">12</param><!-- 12 is java.sql.Types.VARCHAR -->
+            <param name="useNamed">true</param>
           </type>
         </property>
         <many-to-one name="voyage" column="next_expected_voyage_id" foreign-key="next_expected_voyage_fk" cascade="none"/>
@@ -45,6 +47,7 @@
         <type name="org.hibernate.type.EnumType">
           <param name="enumClass">se.citerus.dddsample.domain.model.cargo.TransportStatus</param>
           <param name="type">12</param><!-- 12 is java.sql.Types.VARCHAR -->
+          <param name="useNamed">true</param>
         </type>
       </property>
       <many-to-one name="currentVoyage" column="current_voyage_id" not-null="false" cascade="none" foreign-key="current_voyage_fk"/>

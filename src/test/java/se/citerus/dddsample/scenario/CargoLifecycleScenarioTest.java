@@ -31,8 +31,8 @@ import se.citerus.dddsample.infrastructure.persistence.inmemory.HandlingEventRep
 import se.citerus.dddsample.infrastructure.persistence.inmemory.LocationRepositoryInMem;
 import se.citerus.dddsample.infrastructure.persistence.inmemory.VoyageRepositoryInMem;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class CargoLifecycleScenarioTest extends TestCase {
@@ -87,7 +87,7 @@ public class CargoLifecycleScenarioTest extends TestCase {
        and it should arrive in no more than two weeks. */
     Location origin = HONGKONG;
     Location destination = STOCKHOLM;
-    Date arrivalDeadline = toDate("2009-03-18");
+    ZonedDateTime arrivalDeadline = toDate("2009-03-18");
 
     /* Use case 1: booking
 

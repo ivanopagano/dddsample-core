@@ -7,7 +7,7 @@ import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.model.voyage.Voyage;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * An itinerary consists of one or more legs.
@@ -17,10 +17,10 @@ public class Leg implements ValueObject<Leg> {
   private Voyage voyage;
   private Location loadLocation;
   private Location unloadLocation;
-  private Date loadTime;
-  private Date unloadTime;
+  private ZonedDateTime loadTime;
+  private ZonedDateTime unloadTime;
 
-  public Leg(Voyage voyage, Location loadLocation, Location unloadLocation, Date loadTime, Date unloadTime) {
+  public Leg(Voyage voyage, Location loadLocation, Location unloadLocation, ZonedDateTime loadTime, ZonedDateTime unloadTime) {
     Validate.noNullElements(new Object[] {voyage, loadLocation, unloadLocation, loadTime, unloadTime});
     
     this.voyage = voyage;
@@ -42,13 +42,12 @@ public class Leg implements ValueObject<Leg> {
     return unloadLocation;
   }
 
-  public Date loadTime() {
-    return new Date(loadTime.getTime());
+  public ZonedDateTime loadTime() {
+    //we can freely share this since it's immutable
+    return loadTime;
   }
 
-  public Date unloadTime() {
-    return new Date(unloadTime.getTime());
-  }
+  public ZonedDateTime unloadTime() { return unloadTime; }
 
   @Override
   public boolean sameValueAs(final Leg other) {

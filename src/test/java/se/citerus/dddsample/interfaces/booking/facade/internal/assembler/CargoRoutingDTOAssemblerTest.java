@@ -5,11 +5,13 @@ import se.citerus.dddsample.domain.model.cargo.*;
 import se.citerus.dddsample.domain.model.location.Location;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
 import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.CM001;
+
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.interfaces.booking.facade.dto.CargoRoutingDTO;
 import se.citerus.dddsample.interfaces.booking.facade.dto.LegDTO;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Date;
 
 public class CargoRoutingDTOAssemblerTest extends TestCase {
 
@@ -18,12 +20,12 @@ public class CargoRoutingDTOAssemblerTest extends TestCase {
 
     final Location origin = STOCKHOLM;
     final Location destination = MELBOURNE;
-    final Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(origin, destination, new Date()));
+    final Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(origin, destination, now()));
 
     final Itinerary itinerary = new Itinerary(
       Arrays.asList(
-        new Leg(CM001, origin, SHANGHAI, new Date(), new Date()),
-        new Leg(CM001, ROTTERDAM, destination, new Date(), new Date())
+        new Leg(CM001, origin, SHANGHAI, now(), now()),
+        new Leg(CM001, ROTTERDAM, destination, now(), now())
       )
     );
 
@@ -47,7 +49,7 @@ public class CargoRoutingDTOAssemblerTest extends TestCase {
   public void testToDTO_NoItinerary() throws Exception {
     final CargoRoutingDTOAssembler assembler = new CargoRoutingDTOAssembler();
 
-    final Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(STOCKHOLM, MELBOURNE, new Date()));
+    final Cargo cargo = new Cargo(new TrackingId("XYZ"), new RouteSpecification(STOCKHOLM, MELBOURNE, now()));
     final CargoRoutingDTO dto = assembler.toDTO(cargo);
 
     assertEquals("XYZ", dto.getTrackingId());
@@ -55,4 +57,9 @@ public class CargoRoutingDTOAssemblerTest extends TestCase {
     assertEquals("AUMEL", dto.getFinalDestination());
     assertTrue(dto.getLegs().isEmpty());
   }
+
+  private ZonedDateTime now() {
+    return ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE);
+  }
+
 }

@@ -10,7 +10,7 @@ import se.citerus.dddsample.domain.shared.DomainEvent;
 import se.citerus.dddsample.domain.shared.DomainObjectUtils;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * A HandlingEvent is used to register the event when, for instance,
@@ -33,8 +33,8 @@ public final class HandlingEvent implements DomainEvent<HandlingEvent> {
   private Type type;
   private Voyage voyage;
   private Location location;
-  private Date completionTime;
-  private Date registrationTime;
+  private ZonedDateTime completionTime;
+  private ZonedDateTime registrationTime;
   private Cargo cargo;
 
   /**
@@ -89,8 +89,8 @@ public final class HandlingEvent implements DomainEvent<HandlingEvent> {
    * @param voyage           the voyage
    */
   public HandlingEvent(final Cargo cargo,
-                       final Date completionTime,
-                       final Date registrationTime,
+                       final ZonedDateTime completionTime,
+                       final ZonedDateTime registrationTime,
                        final Type type,
                        final Location location,
                        final Voyage voyage) {
@@ -99,15 +99,16 @@ public final class HandlingEvent implements DomainEvent<HandlingEvent> {
     Validate.notNull(registrationTime, "Registration time is required");
     Validate.notNull(type, "Handling event type is required");
     Validate.notNull(location, "Location is required");
-    Validate.notNull(voyage, "Voyage is required");
 
-    if (type.prohibitsVoyage()) {
+    if (type.requiresVoyage()) {
+      Validate.notNull(voyage, "Voyage is required for event type " + type);
+    }else if (type.prohibitsVoyage() && voyage != null) {
       throw new IllegalArgumentException("Voyage is not allowed with event type " + type);
     }
 
     this.voyage = voyage;
-    this.completionTime = (Date) completionTime.clone();
-    this.registrationTime = (Date) registrationTime.clone();
+    this.completionTime = completionTime;
+    this.registrationTime = registrationTime;
     this.type = type;
     this.location = location;
     this.cargo = cargo;
@@ -121,26 +122,11 @@ public final class HandlingEvent implements DomainEvent<HandlingEvent> {
    * @param location         where the event took place
    */
   public HandlingEvent(final Cargo cargo,
-                       final Date completionTime,
-                       final Date registrationTime,
+                       final ZonedDateTime completionTime,
+                       final ZonedDateTime registrationTime,
                        final Type type,
                        final Location location) {
-    Validate.notNull(cargo, "Cargo is required");
-    Validate.notNull(completionTime, "Completion time is required");
-    Validate.notNull(registrationTime, "Registration time is required");
-    Validate.notNull(type, "Handling event type is required");
-    Validate.notNull(location, "Location is required");
-
-    if (type.requiresVoyage()) {
-      throw new IllegalArgumentException("Voyage is required for event type " + type);
-    }
-
-    this.completionTime = (Date) completionTime.clone();
-    this.registrationTime = (Date) registrationTime.clone();
-    this.type = type;
-    this.location = location;
-    this.cargo = cargo;
-    this.voyage = null;
+    this(cargo, completionTime, registrationTime, type, location, null);
   }
 
   public Type type() {
@@ -151,13 +137,9 @@ public final class HandlingEvent implements DomainEvent<HandlingEvent> {
     return DomainObjectUtils.nullSafe(this.voyage, Voyage.NONE);
   }
 
-  public Date completionTime() {
-    return new Date(this.completionTime.getTime());
-  }
+  public ZonedDateTime completionTime() { return completionTime;  }
 
-  public Date registrationTime() {
-    return new Date(this.registrationTime.getTime());
-  }
+  public ZonedDateTime registrationTime() { return registrationTime;  }
 
   public Location location() {
     return this.location;

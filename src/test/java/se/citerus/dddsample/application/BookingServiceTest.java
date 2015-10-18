@@ -3,6 +3,7 @@ package se.citerus.dddsample.application;
 import junit.framework.TestCase;
 import static org.easymock.EasyMock.*;
 import se.citerus.dddsample.application.impl.BookingServiceImpl;
+import se.citerus.dddsample.application.util.DateTestUtil;
 import se.citerus.dddsample.domain.model.cargo.Cargo;
 import se.citerus.dddsample.domain.model.cargo.CargoRepository;
 import se.citerus.dddsample.domain.model.cargo.TrackingId;
@@ -41,7 +42,7 @@ public class BookingServiceTest extends TestCase {
 
     replay(cargoRepository, locationRepository);
 
-    TrackingId trackingId = bookingService.bookNewCargo(fromUnlocode, toUnlocode, new Date());
+    TrackingId trackingId = bookingService.bookNewCargo(fromUnlocode, toUnlocode, DateTestUtil.now());
     assertEquals(expectedTrackingId, trackingId);
   }
 

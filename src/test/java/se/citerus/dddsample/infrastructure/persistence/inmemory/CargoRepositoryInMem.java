@@ -7,9 +7,12 @@ import se.citerus.dddsample.domain.model.cargo.TrackingId;
 import se.citerus.dddsample.domain.model.handling.HandlingEventRepository;
 import se.citerus.dddsample.domain.model.handling.HandlingHistory;
 import se.citerus.dddsample.domain.model.location.Location;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
+import static se.citerus.dddsample.domain.shared.DateTimeConventions.*;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -82,7 +85,7 @@ public class CargoRepositoryInMem implements CargoRepository {
                                                        Location destination,
                                                        HandlingHistory handlingHistory) {
 
-        final RouteSpecification routeSpecification = new RouteSpecification(origin, destination, new Date());
+        final RouteSpecification routeSpecification = new RouteSpecification(origin, destination, ZonedDateTime.now(REFERENCE_ZONE));
         final Cargo cargo = new Cargo(trackingId, routeSpecification);
         cargo.deriveDeliveryProgress(handlingHistory);
 

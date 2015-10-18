@@ -9,11 +9,13 @@ import se.citerus.dddsample.domain.model.cargo.TrackingId;
 import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.interfaces.handling.HandlingEventRegistrationAttempt;
 import static se.citerus.dddsample.interfaces.handling.HandlingReportParser.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,14 +90,14 @@ public class UploadDirectoryScanner extends TimerTask implements InitializingBea
   private void queueAttempt(String completionTimeStr, String trackingIdStr, String voyageNumberStr, String unLocodeStr, String eventTypeStr) throws Exception {
     final List<String> errors = new ArrayList<String>();
 
-    final Date date = parseDate(completionTimeStr, errors);
+    final ZonedDateTime date = parseDate(completionTimeStr, errors);
     final TrackingId trackingId = parseTrackingId(trackingIdStr, errors);
     final VoyageNumber voyageNumber = parseVoyageNumber(voyageNumberStr, errors);
     final HandlingEvent.Type eventType = parseEventType(eventTypeStr, errors);
     final UnLocode unLocode = parseUnLocode(unLocodeStr, errors);
 
     if (errors.isEmpty()) {
-      final HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(new Date(), date, trackingId, voyageNumber, eventType, unLocode);
+      final HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE), date, trackingId, voyageNumber, eventType, unLocode);
       applicationEvents.receivedHandlingEventRegistrationAttempt(attempt);
     } else {
       throw new Exception(errors.toString());

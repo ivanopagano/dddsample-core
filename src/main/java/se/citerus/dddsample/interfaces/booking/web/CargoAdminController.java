@@ -11,8 +11,16 @@ import se.citerus.dddsample.interfaces.booking.facade.dto.RouteCandidateDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.awt.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Handles cargo booking and routing. Operates against a dedicated remoting service facade,
@@ -33,7 +41,7 @@ public final class CargoAdminController extends MultiActionController {
   @Override
   protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
     super.initBinder(request, binder);
-    binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd HH:mm"), false));
+    binder.registerCustomEditor(ZonedDateTime.class, new CustomZonedDateTimeEditor(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
   }
 
   public Map registrationForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -53,7 +61,7 @@ public final class CargoAdminController extends MultiActionController {
 
   public void register(HttpServletRequest request, HttpServletResponse response,
                        RegistrationCommand command) throws Exception {
-    Date arrivalDeadline = new SimpleDateFormat("M/dd/yyyy").parse(command.getArrivalDeadline());
+    ZonedDateTime arrivalDeadline = ZonedDateTime.parse(command.getArrivalDeadline(), DateTimeFormatter.ofPattern("M/dd/yyyy"));
     String trackingId = bookingServiceFacade.bookNewCargo(
       command.getOriginUnlocode(), command.getDestinationUnlocode(), arrivalDeadline
     );
@@ -131,5 +139,92 @@ public final class CargoAdminController extends MultiActionController {
 
   public void setBookingServiceFacade(BookingServiceFacade bookingServiceFacade) {
     this.bookingServiceFacade = bookingServiceFacade;
+  }
+
+  private class CustomZonedDateTimeEditor implements PropertyEditor {
+    private DateTimeFormatter dtf;
+    private ZonedDateTime dateTime = null;
+
+    public CustomZonedDateTimeEditor(final DateTimeFormatter dtf) {
+      this.dtf = dtf;
+    }
+
+    public CustomZonedDateTimeEditor() {
+      this(null);
+    }
+
+    @Override
+    public void setValue(final Object value) {
+      if (value instanceof ZonedDateTime) {
+        dateTime = (ZonedDateTime) value;
+      }
+    }
+
+    @Override
+    public Object getValue() {
+      return dateTime;
+    }
+
+    @Override
+    public boolean isPaintable() {
+      return false;
+    }
+
+    @Override
+    public void paintValue(final Graphics gfx, final Rectangle box) {
+
+    }
+
+    @Override
+    public String getJavaInitializationString() {
+      return null;
+    }
+
+    @Override
+    public String getAsText() {
+      return dateTime.format(dtf);
+    }
+
+    @Override
+    public void setAsText(final String text) throws IllegalArgumentException {
+      try {
+        setValue(dtf.parse(text));
+      } catch(DateTimeParseException e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
+
+    @Override
+    public String[] getTags() {
+      return new String[0];
+    }
+
+    @Override
+    public Component getCustomEditor() {
+      return null;
+    }
+
+    @Override
+    public boolean supportsCustomEditor() {
+      return false;
+    }
+
+    @Override
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+
+    }
+
+    @Override
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+
+    }
+
+    public DateTimeFormatter getDtf() {
+      return dtf;
+    }
+
+    public void setDtf(DateTimeFormatter dtf) {
+      this.dtf = dtf;
+    }
   }
 }

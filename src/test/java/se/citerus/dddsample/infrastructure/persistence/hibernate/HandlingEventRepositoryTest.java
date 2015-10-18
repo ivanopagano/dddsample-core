@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -22,9 +22,14 @@ import se.citerus.dddsample.domain.model.handling.HandlingEventRepository;
 import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.model.location.LocationRepository;
 import se.citerus.dddsample.domain.model.location.UnLocode;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,9 +73,9 @@ public class HandlingEventRepositoryTest {
         Location location = locationRepository.find(new UnLocode("SESTO"));
 
         Cargo cargo = cargoRepository.find(new TrackingId("XYZ"));
-        Date completionTime = new Date(10);
-        Date registrationTime = new Date(20);
-        HandlingEvent event = new HandlingEvent(cargo, completionTime, registrationTime, HandlingEvent.Type.CLAIM, location);
+        final ZonedDateTime completionDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(10), DateTimeConventions.REFERENCE_ZONE);
+        final ZonedDateTime registrationDateTime = completionDateTime.plus(10, ChronoUnit.MILLIS);
+        HandlingEvent event = new HandlingEvent(cargo, completionDateTime, registrationDateTime, HandlingEvent.Type.CLAIM, location);
 
         handlingEventRepository.store(event);
 

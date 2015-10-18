@@ -14,7 +14,9 @@ import se.citerus.dddsample.domain.model.location.LocationRepository;
 import static se.citerus.dddsample.domain.model.location.SampleLocations.*;
 import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.CM001;
 import se.citerus.dddsample.domain.model.voyage.VoyageRepository;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 public class HandlingEventServiceTest extends TestCase {
@@ -25,7 +27,7 @@ public class HandlingEventServiceTest extends TestCase {
   private HandlingEventRepository handlingEventRepository;
   private LocationRepository locationRepository;
 
-  private final Cargo cargo = new Cargo(new TrackingId("ABC"), new RouteSpecification(HAMBURG, TOKYO, new Date()));
+  private final Cargo cargo = new Cargo(new TrackingId("ABC"), new RouteSpecification(HAMBURG, TOKYO, ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE)));
 
   protected void setUp() throws Exception{
     cargoRepository = createMock(CargoRepository.class);
@@ -51,7 +53,7 @@ public class HandlingEventServiceTest extends TestCase {
 
     replay(cargoRepository, voyageRepository, handlingEventRepository, locationRepository, applicationEvents);
 
-    service.registerHandlingEvent(new Date(), cargo.trackingId(), CM001.voyageNumber(), STOCKHOLM.unLocode(), HandlingEvent.Type.LOAD);
+    service.registerHandlingEvent(ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE), cargo.trackingId(), CM001.voyageNumber(), STOCKHOLM.unLocode(), HandlingEvent.Type.LOAD);
   }
 
 }

@@ -19,6 +19,7 @@ import se.citerus.dddsample.interfaces.booking.facade.internal.assembler.Itinera
 import se.citerus.dddsample.interfaces.booking.facade.internal.assembler.LocationDTOAssembler;
 
 import java.rmi.RemoteException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +47,7 @@ public class BookingServiceFacadeImpl implements BookingServiceFacade {
   }
 
   @Override
-  public String bookNewCargo(String origin, String destination, Date arrivalDeadline) {
+  public String bookNewCargo(String origin, String destination, ZonedDateTime arrivalDeadline) {
     TrackingId trackingId = bookingService.bookNewCargo(
       new UnLocode(origin), 
       new UnLocode(destination),

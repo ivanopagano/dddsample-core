@@ -5,9 +5,10 @@ import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An itinerary.
@@ -18,7 +19,6 @@ public class Itinerary implements ValueObject<Itinerary> {
   private List<Leg> legs = Collections.emptyList();
 
   static final Itinerary EMPTY_ITINERARY = new Itinerary();
-  private static final Date END_OF_DAYS = new Date(Long.MAX_VALUE);
 
   /**
    * Constructor.
@@ -109,15 +109,17 @@ public class Itinerary implements ValueObject<Itinerary> {
   }
 
   /**
+   * Note that the arrival date could be still unavailable,
+   * if the itinerary has no legs defined
    * @return Date when cargo arrives at final destination.
    */
-  Date finalArrivalDate() {
+  Optional<ZonedDateTime> finalArrivalDate() {
     final Leg lastLeg = lastLeg();
 
     if (lastLeg == null) {
-      return new Date(END_OF_DAYS.getTime());
+      return Optional.empty();
     } else {
-      return new Date(lastLeg.unloadTime().getTime());
+      return Optional.of(lastLeg.unloadTime());
     }
   }
 

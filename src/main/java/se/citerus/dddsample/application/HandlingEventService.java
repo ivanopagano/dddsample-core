@@ -6,7 +6,7 @@ import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Handling event service.
@@ -26,7 +26,7 @@ public interface HandlingEventService {
    *  if a handling event that represents an actual event that's relevant to a cargo we're tracking
    *  can't be created from the parameters 
    */
-  void registerHandlingEvent(Date completionTime,
+  void registerHandlingEvent(ZonedDateTime completionTime,
                              TrackingId trackingId,
                              VoyageNumber voyageNumber,
                              UnLocode unLocode,

@@ -1,7 +1,7 @@
 package se.citerus.dddsample.interfaces.booking.facade.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * DTO for a leg in an itinerary.
@@ -11,19 +11,18 @@ public final class LegDTO implements Serializable {
   private final String voyageNumber;
   private final String from;
   private final String to;
-  private final Date loadTime;
-  private final Date unloadTime;
+  private final ZonedDateTime loadTime;
+  private final ZonedDateTime unloadTime;
 
   /**
    * Constructor.
-   *
-   * @param voyageNumber
+   *  @param voyageNumber
    * @param from
    * @param to
    * @param loadTime
    * @param unloadTime
    */
-  public LegDTO(final String voyageNumber, final String from, final String to, Date loadTime, Date unloadTime) {
+  public LegDTO(final String voyageNumber, final String from, final String to, ZonedDateTime loadTime, ZonedDateTime unloadTime) {
     this.voyageNumber = voyageNumber;
     this.from = from;
     this.to = to;
@@ -43,11 +42,11 @@ public final class LegDTO implements Serializable {
     return to;
   }
 
-  public Date getLoadTime() {
+  public ZonedDateTime getLoadTime() {
     return loadTime;
   }
 
-  public Date getUnloadTime() {
+  public ZonedDateTime getUnloadTime() {
     return unloadTime;
   }
   

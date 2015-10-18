@@ -11,11 +11,13 @@ import se.citerus.dddsample.domain.model.cargo.TrackingId;
 import se.citerus.dddsample.domain.model.handling.HandlingEvent;
 import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.interfaces.handling.HandlingEventRegistrationAttempt;
 import static se.citerus.dddsample.interfaces.handling.HandlingReportParser.*;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +38,7 @@ public class HandlingReportServiceImpl implements HandlingReportService {
   public void submitReport(@WebParam(name = "arg0", targetNamespace = "") HandlingReport handlingReport) throws HandlingReportErrors_Exception {
     final List<String> errors = new ArrayList<String>();
 
-    final Date completionTime = parseCompletionTime(handlingReport, errors);
+    final ZonedDateTime completionTime = parseCompletionTime(handlingReport, errors);
     final VoyageNumber voyageNumber = parseVoyageNumber(handlingReport.getVoyageNumber(), errors);
     final HandlingEvent.Type type = parseEventType(handlingReport.getType(), errors);
     final UnLocode unLocode = parseUnLocode(handlingReport.getUnLocode(), errors);
@@ -45,7 +47,8 @@ public class HandlingReportServiceImpl implements HandlingReportService {
       final TrackingId trackingId = parseTrackingId(trackingIdStr, errors);
 
       if (errors.isEmpty()) {
-        final Date registrationTime = new Date();
+//        final Date registrationTime = new Date();
+        final ZonedDateTime registrationTime = ZonedDateTime.now(DateTimeConventions.REFERENCE_ZONE);
         final HandlingEventRegistrationAttempt attempt = new HandlingEventRegistrationAttempt(
           registrationTime, completionTime, trackingId, voyageNumber, type, unLocode
         );

@@ -7,7 +7,7 @@ import se.citerus.dddsample.domain.model.location.Location;
 import se.citerus.dddsample.domain.shared.AbstractSpecification;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Route specification. Describes where a cargo orign and destination is,
@@ -18,14 +18,14 @@ public class RouteSpecification extends AbstractSpecification<Itinerary> impleme
 
   private Location origin;
   private Location destination;
-  private Date arrivalDeadline;
+  private ZonedDateTime arrivalDeadline;
 
   /**
    * @param origin origin location - can't be the same as the destination
    * @param destination destination location - can't be the same as the origin
    * @param arrivalDeadline arrival deadline
    */
-  public RouteSpecification(final Location origin, final Location destination, final Date arrivalDeadline) {
+  public RouteSpecification(final Location origin, final Location destination, final ZonedDateTime arrivalDeadline) {
     Validate.notNull(origin, "Origin is required");
     Validate.notNull(destination, "Destination is required");
     Validate.notNull(arrivalDeadline, "Arrival deadline is required");
@@ -33,7 +33,7 @@ public class RouteSpecification extends AbstractSpecification<Itinerary> impleme
 
     this.origin = origin;
     this.destination = destination;
-    this.arrivalDeadline = (Date) arrivalDeadline.clone();
+    this.arrivalDeadline = arrivalDeadline;
   }
 
   /**
@@ -53,16 +53,18 @@ public class RouteSpecification extends AbstractSpecification<Itinerary> impleme
   /**
    * @return Arrival deadline.
    */
-  public Date arrivalDeadline() {
-    return new Date(arrivalDeadline.getTime());
+  public ZonedDateTime arrivalDeadline() {
+    //we can safely share this since it's immutable
+    return arrivalDeadline;
   }
 
   @Override
   public boolean isSatisfiedBy(final Itinerary itinerary) {
     return itinerary != null &&
-           origin().sameIdentityAs(itinerary.initialDepartureLocation()) &&
-           destination().sameIdentityAs(itinerary.finalArrivalLocation()) &&
-           arrivalDeadline().after(itinerary.finalArrivalDate());
+            origin().sameIdentityAs(itinerary.initialDepartureLocation()) &&
+            destination().sameIdentityAs(itinerary.finalArrivalLocation()) &&
+            itinerary.finalArrivalDate().isPresent() &&
+            arrivalDeadline().isAfter(itinerary.finalArrivalDate().get());
   }
 
   @Override

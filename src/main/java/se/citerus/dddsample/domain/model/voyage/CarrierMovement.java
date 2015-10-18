@@ -4,10 +4,15 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import se.citerus.dddsample.domain.model.location.Location;
+import se.citerus.dddsample.domain.shared.DateTimeConventions;
 import se.citerus.dddsample.domain.shared.ValueObject;
 
-import java.util.Date;
-
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 /**
  * A carrier movement is a vessel voyage from one location to another.
@@ -16,19 +21,20 @@ public final class CarrierMovement implements ValueObject<CarrierMovement> {
 
   private Location departureLocation;
   private Location arrivalLocation;
-  private Date departureTime;
-  private Date arrivalTime;
+  private ZonedDateTime departureTime;
+  private ZonedDateTime arrivalTime;
 
   // Null object pattern 
   public static final CarrierMovement NONE = new CarrierMovement(
-    Location.UNKNOWN, Location.UNKNOWN,
-    new Date(0), new Date(0)
+    Location.UNKNOWN,
+    Location.UNKNOWN,
+    ZonedDateTime.of(LocalDateTime.MIN, DateTimeConventions.REFERENCE_ZONE),
+    ZonedDateTime.of(LocalDateTime.MIN, DateTimeConventions.REFERENCE_ZONE)
   );
 
   /**
    * Constructor.
-   *
-   * @param departureLocation location of departure
+   *  @param departureLocation location of departure
    * @param arrivalLocation location of arrival
    * @param departureTime time of departure
    * @param arrivalTime time of arrival
@@ -36,8 +42,8 @@ public final class CarrierMovement implements ValueObject<CarrierMovement> {
   // TODO make package local
   public CarrierMovement(Location departureLocation,
                          Location arrivalLocation,
-                         Date departureTime,
-                         Date arrivalTime) {
+                         ZonedDateTime departureTime,
+                         ZonedDateTime arrivalTime) {
     Validate.noNullElements(new Object[]{departureLocation, arrivalLocation, departureTime, arrivalTime});
     this.departureTime = departureTime;
     this.arrivalTime = arrivalTime;
@@ -62,15 +68,13 @@ public final class CarrierMovement implements ValueObject<CarrierMovement> {
   /**
    * @return Time of departure.
    */
-  public Date departureTime() {
-    return new Date(departureTime.getTime());
-  }
+  public ZonedDateTime departureTime() { return departureTime; }
 
   /**
    * @return Time of arrival.
    */
-  public Date arrivalTime() {
-    return new Date(arrivalTime.getTime());
+  public ZonedDateTime arrivalTime() {
+    return arrivalTime;
   }
 
   @Override

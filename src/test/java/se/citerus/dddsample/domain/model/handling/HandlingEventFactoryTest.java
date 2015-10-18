@@ -2,6 +2,8 @@ package se.citerus.dddsample.domain.model.handling;
 
 import junit.framework.TestCase;
 import static org.easymock.EasyMock.*;
+
+import se.citerus.dddsample.application.util.DateTestUtil;
 import se.citerus.dddsample.domain.model.cargo.Cargo;
 import se.citerus.dddsample.domain.model.cargo.CargoRepository;
 import se.citerus.dddsample.domain.model.cargo.RouteSpecification;
@@ -16,8 +18,6 @@ import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 import se.citerus.dddsample.domain.model.voyage.VoyageRepository;
 import se.citerus.dddsample.infrastructure.persistence.inmemory.LocationRepositoryInMem;
 import se.citerus.dddsample.infrastructure.persistence.inmemory.VoyageRepositoryInMem;
-
-import java.util.Date;
 
 public class HandlingEventFactoryTest extends TestCase {
 
@@ -38,7 +38,7 @@ public class HandlingEventFactoryTest extends TestCase {
 
 
     trackingId = new TrackingId("ABC");
-    RouteSpecification routeSpecification = new RouteSpecification(TOKYO, HELSINKI, new Date());
+    RouteSpecification routeSpecification = new RouteSpecification(TOKYO, HELSINKI, DateTestUtil.now());
     cargo = new Cargo(trackingId, routeSpecification);
   }
 
@@ -50,15 +50,15 @@ public class HandlingEventFactoryTest extends TestCase {
     VoyageNumber voyageNumber = CM001.voyageNumber();
     UnLocode unLocode = STOCKHOLM.unLocode();
     HandlingEvent handlingEvent = factory.createHandlingEvent(
-      new Date(), new Date(100), trackingId, voyageNumber, unLocode, Type.LOAD
+      DateTestUtil.now(), DateTestUtil.makeDate(100), trackingId, voyageNumber, unLocode, Type.LOAD
     );
 
     assertNotNull(handlingEvent);
     assertEquals(STOCKHOLM, handlingEvent.location());
     assertEquals(CM001, handlingEvent.voyage());
     assertEquals(cargo, handlingEvent.cargo());
-    assertEquals(new Date(100), handlingEvent.completionTime());
-    assertTrue(handlingEvent.registrationTime().before(new Date(System.currentTimeMillis() + 1)));
+    assertEquals(DateTestUtil.makeDate(100), handlingEvent.completionTime());
+    assertTrue(handlingEvent.registrationTime().isBefore(DateTestUtil.makeDate(System.currentTimeMillis() + 1)));
   }
 
   public void testCreateHandlingEventWithoutCarrierMovement() throws Exception {
@@ -68,15 +68,15 @@ public class HandlingEventFactoryTest extends TestCase {
 
     UnLocode unLocode = STOCKHOLM.unLocode();
     HandlingEvent handlingEvent = factory.createHandlingEvent(
-      new Date(), new Date(100), trackingId, null, unLocode, Type.CLAIM
+      DateTestUtil.now(), DateTestUtil.makeDate(100), trackingId, null, unLocode, Type.CLAIM
     );
 
     assertNotNull(handlingEvent);
     assertEquals(STOCKHOLM, handlingEvent.location());
     assertEquals(Voyage.NONE, handlingEvent.voyage());
     assertEquals(cargo, handlingEvent.cargo());
-    assertEquals(new Date(100), handlingEvent.completionTime());
-    assertTrue(handlingEvent.registrationTime().before(new Date(System.currentTimeMillis() + 1)));
+    assertEquals(DateTestUtil.makeDate(100), handlingEvent.completionTime());
+    assertTrue(handlingEvent.registrationTime().isBefore(DateTestUtil.makeDate(System.currentTimeMillis() + 1)));
   }
 
   public void testCreateHandlingEventUnknownLocation() throws Exception {
@@ -87,7 +87,7 @@ public class HandlingEventFactoryTest extends TestCase {
     UnLocode invalid = new UnLocode("NOEXT");
     try {
       factory.createHandlingEvent(
-        new Date(), new Date(100), trackingId, CM001.voyageNumber(), invalid, Type.LOAD
+        DateTestUtil.now(), DateTestUtil.makeDate(100), trackingId, CM001.voyageNumber(), invalid, Type.LOAD
       );
       fail("Expected UnknownLocationException");
     } catch (UnknownLocationException expected) {}
@@ -101,7 +101,7 @@ public class HandlingEventFactoryTest extends TestCase {
     try {
       VoyageNumber invalid = new VoyageNumber("XXX");
       factory.createHandlingEvent(
-        new Date(), new Date(100), trackingId, invalid, STOCKHOLM.unLocode(), Type.LOAD
+        DateTestUtil.now(), DateTestUtil.makeDate(100), trackingId, invalid, STOCKHOLM.unLocode(), Type.LOAD
       );
       fail("Expected UnknownVoyageException");
     } catch (UnknownVoyageException expected) {}
@@ -114,7 +114,7 @@ public class HandlingEventFactoryTest extends TestCase {
 
     try {
       factory.createHandlingEvent(
-        new Date(), new Date(100), trackingId, CM001.voyageNumber(), STOCKHOLM.unLocode(), Type.LOAD
+        DateTestUtil.now(), DateTestUtil.makeDate(100), trackingId, CM001.voyageNumber(), STOCKHOLM.unLocode(), Type.LOAD
       );
       fail("Expected UnknownCargoException");
     } catch (UnknownCargoException expected) {}

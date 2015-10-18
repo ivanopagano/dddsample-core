@@ -8,6 +8,7 @@ import se.citerus.dddsample.domain.model.location.UnLocode;
 import se.citerus.dddsample.domain.model.voyage.VoyageNumber;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 /**
@@ -19,15 +20,15 @@ import java.util.Date;
  */
 public final class HandlingEventRegistrationAttempt implements Serializable {
 
-  private final Date registrationTime;
-  private final Date completionTime;
+  private final ZonedDateTime registrationTime;
+  private final ZonedDateTime completionTime;
   private final TrackingId trackingId;
   private final VoyageNumber voyageNumber;
   private final HandlingEvent.Type type;
   private final UnLocode unLocode;
 
-  public HandlingEventRegistrationAttempt(final Date registrationDate,
-                                          final Date completionDate,
+  public HandlingEventRegistrationAttempt(final ZonedDateTime registrationDate,
+                                          final ZonedDateTime completionDate,
                                           final TrackingId trackingId,
                                           final VoyageNumber voyageNumber,
                                           final HandlingEvent.Type type,
@@ -40,9 +41,7 @@ public final class HandlingEventRegistrationAttempt implements Serializable {
     this.unLocode = unLocode;
   }
 
-  public Date getCompletionTime() {
-    return new Date(completionTime.getTime());
-  }
+  public ZonedDateTime getCompletionTime() { return completionTime; }
 
   public TrackingId getTrackingId() {
     return trackingId;
@@ -60,7 +59,7 @@ public final class HandlingEventRegistrationAttempt implements Serializable {
     return unLocode;
   }
 
-  public Date getRegistrationTime() {
+  public ZonedDateTime getRegistrationTime() {
     return registrationTime;
   }
 

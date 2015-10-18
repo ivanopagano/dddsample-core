@@ -1,6 +1,7 @@
 package se.citerus.dddsample.domain.model.handling;
 
 import junit.framework.TestCase;
+import se.citerus.dddsample.application.util.DateTestUtil;
 import se.citerus.dddsample.domain.model.cargo.Cargo;
 import se.citerus.dddsample.domain.model.cargo.RouteSpecification;
 import se.citerus.dddsample.domain.model.cargo.TrackingId;
@@ -11,6 +12,8 @@ import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.CM003;
 import static se.citerus.dddsample.domain.model.voyage.SampleVoyages.CM004;
 
 import static java.util.Arrays.asList;
+
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 public class HandlingEventTest extends TestCase {
@@ -18,22 +21,22 @@ public class HandlingEventTest extends TestCase {
 
   protected void setUp() throws Exception {
     TrackingId trackingId = new TrackingId("XYZ");
-    RouteSpecification routeSpecification = new RouteSpecification(HONGKONG, NEWYORK, new Date());
+    RouteSpecification routeSpecification = new RouteSpecification(HONGKONG, NEWYORK, DateTestUtil.now());
     cargo = new Cargo(trackingId, routeSpecification);
   }
 
   public void testNewWithCarrierMovement() throws Exception {
 
-    HandlingEvent e1 = new HandlingEvent(cargo, new Date(), new Date(), LOAD, HONGKONG, CM003);
+    HandlingEvent e1 = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), LOAD, HONGKONG, CM003);
     assertEquals(HONGKONG, e1.location());
 
-    HandlingEvent e2 = new HandlingEvent(cargo, new Date(), new Date(), UNLOAD, NEWYORK, CM003);
+    HandlingEvent e2 = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), UNLOAD, NEWYORK, CM003);
     assertEquals(NEWYORK, e2.location());
 
       // These event types prohibit a carrier movement association
     for (HandlingEvent.Type type : asList(CLAIM, RECEIVE, CUSTOMS)) {
       try {
-        new HandlingEvent(cargo, new Date(), new Date(), type, HONGKONG, CM003);
+        new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), type, HONGKONG, CM003);
         fail("Handling event type " + type + " prohibits carrier movement");
       } catch (IllegalArgumentException expected) {}
     }
@@ -41,37 +44,37 @@ public class HandlingEventTest extends TestCase {
       // These event types requires a carrier movement association
     for (HandlingEvent.Type type : asList(LOAD, UNLOAD)) {
         try {
-          new HandlingEvent(cargo, new Date(), new Date(), type, HONGKONG, null);
+          new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), type, HONGKONG, null);
             fail("Handling event type " + type + " requires carrier movement");
         } catch (IllegalArgumentException expected) {}
     }
   }
 
   public void testNewWithLocation() throws Exception {
-    HandlingEvent e1 = new HandlingEvent(cargo, new Date(), new Date(), HandlingEvent.Type.CLAIM, HELSINKI);
+    HandlingEvent e1 = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), HandlingEvent.Type.CLAIM, HELSINKI);
     assertEquals(HELSINKI, e1.location());
   }
 
   public void testCurrentLocationLoadEvent() throws Exception {
 
-    HandlingEvent ev = new HandlingEvent(cargo, new Date(), new Date(), LOAD, CHICAGO, CM004);
+    HandlingEvent ev = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), LOAD, CHICAGO, CM004);
     
     assertEquals(CHICAGO, ev.location());
   }
   
   public void testCurrentLocationUnloadEvent() throws Exception {
-    HandlingEvent ev = new HandlingEvent(cargo, new Date(), new Date(), UNLOAD, HAMBURG, CM004);
+    HandlingEvent ev = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), UNLOAD, HAMBURG, CM004);
     
     assertEquals(HAMBURG, ev.location());
   }
   
   public void testCurrentLocationReceivedEvent() throws Exception {
-    HandlingEvent ev = new HandlingEvent(cargo, new Date(), new Date(), RECEIVE, CHICAGO);
+    HandlingEvent ev = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), RECEIVE, CHICAGO);
 
     assertEquals(CHICAGO, ev.location());
   }
   public void testCurrentLocationClaimedEvent() throws Exception {
-    HandlingEvent ev = new HandlingEvent(cargo, new Date(), new Date(), CLAIM, CHICAGO);
+    HandlingEvent ev = new HandlingEvent(cargo, DateTestUtil.now(), DateTestUtil.now(), CLAIM, CHICAGO);
 
     assertEquals(CHICAGO, ev.location());
   }
@@ -93,8 +96,8 @@ public class HandlingEventTest extends TestCase {
   }
   
   public void testEqualsAndSameAs() throws Exception {
-    Date timeOccured = new Date();
-    Date timeRegistered = new Date();
+    ZonedDateTime timeOccured = DateTestUtil.now();
+    ZonedDateTime timeRegistered = DateTestUtil.now();
 
     HandlingEvent ev1 = new HandlingEvent(cargo, timeOccured, timeRegistered, LOAD, CHICAGO, SampleVoyages.CM005);
     HandlingEvent ev2 = new HandlingEvent(cargo, timeOccured, timeRegistered, LOAD, CHICAGO, SampleVoyages.CM005);
