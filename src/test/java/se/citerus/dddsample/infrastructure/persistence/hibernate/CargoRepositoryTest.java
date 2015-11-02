@@ -123,10 +123,10 @@ public class CargoRepositoryTest {
         assertEquals(expectedLocation, event.location());
 
         ZonedDateTime expectedCompletionTime = SampleDataGenerator.offset(completionTimeMs);
-        assertEquals(expectedCompletionTime, event.completionTime());
+        assertEquals(expectedCompletionTime, event.completionTime().withZoneSameInstant(DateTimeConventions.REFERENCE_ZONE));
 
         ZonedDateTime expectedRegistrationTime = SampleDataGenerator.offset(registrationTimeMs);
-        assertEquals(expectedRegistrationTime, event.registrationTime());
+        assertEquals(expectedRegistrationTime, event.registrationTime().withZoneSameInstant(DateTimeConventions.REFERENCE_ZONE));
 
         assertEquals(voyage, event.voyage());
         assertEquals(cargo, event.cargo());
